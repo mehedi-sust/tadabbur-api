@@ -21,9 +21,5 @@
       "memory": 1024
     }
   },
-  "installCommand": "npm install --production",
-  "hooks": {
-    "preBuild": "echo 'Starting Tadabbur backend deployment...'",
-    "preInstall": "echo 'Installing dependencies...'"
-  }
+  "installCommand": "npm install --production"
 }
