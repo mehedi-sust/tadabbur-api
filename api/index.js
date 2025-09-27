@@ -11,6 +11,7 @@ const blogRoutes = require('../src/routes/blogs');
 const questionRoutes = require('../src/routes/questions');
 const userRoutes = require('../src/routes/users');
 const aiRoutes = require('../src/routes/ai');
+const reportRoutes = require('../src/routes/reports');
 
 // Database initialization
 const DatabaseInitializer = require('../src/database/initialize');
@@ -87,6 +88,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

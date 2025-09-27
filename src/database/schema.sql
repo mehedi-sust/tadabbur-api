@@ -184,9 +184,23 @@ SELECT * FROM (
 ) AS v(name, description)
 WHERE NOT EXISTS (SELECT 1 FROM dua_categories WHERE name = v.name);
 
+-- Content reports table
+CREATE TABLE IF NOT EXISTS content_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('dua', 'blog')),
+    content_id UUID NOT NULL,
+    reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reason VARCHAR(50) NOT NULL CHECK (reason IN ('inaccurate', 'inappropriate', 'spam', 'copyright', 'other')),
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'resolved', 'dismissed')),
+    admin_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Insert default admin user only if no admin exists
 INSERT INTO users (name, email, password_hash, role)
-SELECT 'System Admin', 'admin@mydua.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'
+SELECT 'System Admin', 'admin@tadabbur.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'
 WHERE NOT EXISTS (
-    SELECT 1 FROM users WHERE email = 'admin@mydua.com' OR role = 'admin'
+    SELECT 1 FROM users WHERE email = 'admin@tadabbur.com' OR role = 'admin'
 );

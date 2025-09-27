@@ -149,9 +149,11 @@ router.get('/my-duas', authenticateToken, async (req, res) => {
     const search = req.query.search || '';
 
     let query = `
-      SELECT d.*, array_agg(DISTINCT dc.name) as categories,
+      SELECT d.*, u.name as author_name, u.name as user_name,
+             array_agg(DISTINCT dc.name) as categories,
              COALESCE(cl.likes_count, 0) as likes_count
       FROM duas d
+      LEFT JOIN users u ON d.user_id = u.id
       LEFT JOIN dua_category_relations dcr ON d.id = dcr.dua_id
       LEFT JOIN dua_categories dc ON dcr.category_id = dc.id
       LEFT JOIN (
@@ -171,7 +173,7 @@ router.get('/my-duas', authenticateToken, async (req, res) => {
       paramCount++;
     }
 
-    query += ` GROUP BY d.id, cl.likes_count ORDER BY d.created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    query += ` GROUP BY d.id, u.name, cl.likes_count ORDER BY d.created_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     queryParams.push(limit, offset);
 
     const result = await pool.query(query, queryParams);
