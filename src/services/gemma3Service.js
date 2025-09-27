@@ -136,9 +136,10 @@ class Gemma3Service {
             content: prompt
           }
         ],
-        max_tokens: 1000,
-        temperature: 0.7,
-        top_p: 0.9
+        max_tokens: 2000,
+        temperature: 0.3,
+        top_p: 0.9,
+        timeout: 45000
       });
 
       const response = chatCompletion.choices[0].message.content;
@@ -211,9 +212,15 @@ output:`;
 
   parseAIResponse(response) {
     try {
+      console.log('🔍 Full response length:', response.length);
+      console.log('🔍 Response preview:', response.substring(0, 500));
+      
       // Try to parse as JSON first
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
+        console.log('🔍 JSON match found, length:', jsonMatch[0].length);
+        console.log('🔍 JSON preview:', jsonMatch[0].substring(0, 1000));
+        
         const jsonResponse = JSON.parse(jsonMatch[0]);
         
         // Handle the working example format
@@ -302,6 +309,69 @@ output:`;
       };
     } catch (error) {
       console.error('Error parsing Gemma3 response:', error);
+      console.error('Raw response length:', response.length);
+      console.error('Raw response preview:', response.substring(0, 2000));
+      
+      // Try to extract partial JSON if possible
+      try {
+        const partialMatch = response.match(/\{[\s\S]*?(?=\n\s*$|\n\s*[^}]|$)/);
+        if (partialMatch) {
+          console.log('🔧 Attempting to fix partial JSON...');
+          let partialJson = partialMatch[0];
+          
+          // Try to close incomplete JSON structures
+          if (partialJson.includes('"suggestion_bangla": "আরও ভাল') && !partialJson.includes('}')) {
+            partialJson = partialJson.replace(/"suggestion_bangla": "আরও ভাল[^"]*$/, '"suggestion_bangla": "আরও ভালো করা যেতে পারে"');
+          }
+          
+          // Close any unclosed arrays or objects
+          const openBraces = (partialJson.match(/\{/g) || []).length;
+          const closeBraces = (partialJson.match(/\}/g) || []).length;
+          const openBrackets = (partialJson.match(/\[/g) || []).length;
+          const closeBrackets = (partialJson.match(/\]/g) || []).length;
+          
+          // Add missing closing brackets
+          for (let i = 0; i < openBrackets - closeBrackets; i++) {
+            partialJson += ']';
+          }
+          
+          // Add missing closing braces
+          for (let i = 0; i < openBraces - closeBraces; i++) {
+            partialJson += '}';
+          }
+          
+          console.log('🔧 Fixed JSON preview:', partialJson.substring(0, 1000));
+          const fixedResponse = JSON.parse(partialJson);
+          
+          if (fixedResponse.analysis && fixedResponse.corrections && fixedResponse.summary) {
+            return {
+              summary: {
+                english: fixedResponse.summary.english || 'Summary not provided',
+                bangla: fixedResponse.summary.bangla || 'সারাংশ প্রদান করা হয়নি'
+              },
+              corrections: Array.isArray(fixedResponse.corrections) ? 
+                fixedResponse.corrections.map(correction => 
+                  typeof correction === 'object' ? {
+                    field: correction.field || 'unknown',
+                    issue_english: correction.issue_english || '',
+                    issue_bangla: correction.issue_bangla || '',
+                    suggestion_english: correction.suggestion_english || '',
+                    suggestion_bangla: correction.suggestion_bangla || ''
+                  } : correction
+                ) : 
+                [fixedResponse.corrections || 'পরামর্শ প্রদান করা হয়নি'],
+              authenticity: {
+                english: 'Content analysis completed',
+                bangla: 'বিষয়বস্তু বিশ্লেষণ সম্পন্ন হয়েছে'
+              },
+              confidence: 0.8
+            };
+          }
+        }
+      } catch (fixError) {
+        console.error('Failed to fix partial JSON:', fixError);
+      }
+      
       return {
         summary: 'AI দ্বারা বিশ্লেষণ সম্পন্ন - বিষয়বস্তু ইসলামী প্রকৃতির বলে মনে হচ্ছে',
         corrections: ['সব তথ্য ঠিক আছে - কোনো সংশোধনের প্রয়োজন নেই'],
