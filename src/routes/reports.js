@@ -6,12 +6,15 @@ const authenticateToken = require('../middleware/auth');
 const router = express.Router();
 
 // Report content
-router.post('/report', authenticateToken, [
-  body('contentType').isIn(['dua', 'blog']).withMessage('Content type must be dua or blog'),
-  body('contentId').isUUID().withMessage('Content ID must be a valid UUID'),
-  body('reason').isIn(['inaccurate', 'inappropriate', 'spam', 'copyright', 'other']).withMessage('Invalid reason'),
-  body('description').optional().isLength({ max: 1000 }).withMessage('Description too long')
-], async (req, res) => {
+router.post('/report', 
+  authenticateToken,
+  [
+    body('contentType').isIn(['dua', 'blog']).withMessage('Content type must be dua or blog'),
+    body('contentId').isUUID().withMessage('Content ID must be a valid UUID'),
+    body('reason').isIn(['inaccurate', 'inappropriate', 'spam', 'copyright', 'other']).withMessage('Invalid reason'),
+    body('description').optional().isLength({ max: 1000 }).withMessage('Description too long')
+  ],
+  async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -117,10 +120,13 @@ router.get('/admin', authenticateToken, async (req, res) => {
 });
 
 // Update report status (admin only)
-router.put('/admin/:reportId', authenticateToken, [
-  body('status').isIn(['reviewed', 'resolved', 'dismissed']).withMessage('Invalid status'),
-  body('adminNotes').optional().isLength({ max: 1000 }).withMessage('Admin notes too long')
-], async (req, res) => {
+router.put('/admin/:reportId', 
+  authenticateToken,
+  [
+    body('status').isIn(['reviewed', 'resolved', 'dismissed']).withMessage('Invalid status'),
+    body('adminNotes').optional().isLength({ max: 1000 }).withMessage('Admin notes too long')
+  ],
+  async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
