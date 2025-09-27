@@ -1,0 +1,42 @@
+{
+  "name": "mydua-backend",
+  "version": "1.0.0",
+  "description": "MyDua backend API server",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:ai": "jest src/tests/ai.test.js",
+    "setup-db": "node src/scripts/setup-database.js",
+    "verify-admin": "node scripts/verify-admin.js",
+    "postinstall": "echo 'Dependencies installed. Ready for deployment!'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "axios": "^1.6.2",
+    "nodemailer": "^6.9.7",
+    "openai": "^4.28.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "@types/jest": "^29.5.8",
+    "bull": "^4.12.2",
+    "redis": "^4.6.10"
+  },
+  "keywords": ["islamic", "api", "express", "postgresql"],
+  "author": "MyDua Team",
+  "license": "MIT"
+}

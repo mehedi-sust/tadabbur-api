@@ -1,0 +1,109 @@
+Prompt:
+Content to analyze:
+Title: জাহান্নাম থেকে ‍মুক্তি
+Purpose: Not specified
+Arabic Text: اللَّهُمَّ أَجِرْنِى مِ
+English Meaning: O Allah! Save me from the fire of Hell.
+Transliteration: আল্লাহুম্মা আজিরনি মিনান নার।
+Native Meaning: হে আল্লাহ! আমাকে
+Source Reference: N/A
+
+Check the contents for any issues and provide a summary of the content correction and suggestions.
+- Do not use md styling only use with plain text.
+- Show the output as json format. Each correction will be as a array element.
+- Proive bangla and english for the correction and suggestions.
+- If ther is no correction need the correction array will be empty . 
+- Here is a sample output struture 
+
+{
+    "analysis": {
+      "title": " জাহান্নাম থেকে মুক্তি",
+      "purpose": "Not specified",
+      "arabic_text": " اللَّهُمَّ أَجِرْنِى مِ",
+      "english_meaning": "O Allah! Save me from the fire of Hell.",
+      "transliteration": "আল্লাহুম্মা আজিরনি মিনান নার।",
+      "native_meaning": "হে আল্লাহ! আমাকে",
+      "source_reference": "N/A"
+    },
+    "corrections": [
+      {
+        "field": "title",
+        "issue_english": "Descriptive, not standard for a du'a.",
+        "issue_bangla": "বর্ণনমূলক, একটি দু’য়ার জন্য আদর্শ নয়।",
+        "suggestion_english": "Du'a for Protection from Hellfire",
+        "suggestion_bangla": "জাহান্নাম থেকে সুরক্ষার জন্য দু’আ"
+      }
+    ],
+    "summary": {
+      "english": "The provided content contains several inaccuracies, primarily due to an incomplete Arabic text. Corrections include completing the Arabic and Bengali text, refining the transliteration, providing a more accurate English meaning, suggesting a better title, and emphasizing the need to specify a purpose and source reference. These changes improve the content’s accuracy, clarity, and usefulness.",
+      "bangla": "প্রদত্ত অংশে বেশ কিছু ভুল রয়েছে, যার প্রধান কারণ হল একটি অসম্পূর্ণ আরবি পাঠ। সংশোধনগুলির মধ্যে আরবি এবং বাংলা পাঠ সম্পূর্ণ করা, প্রতিবর্ণীকরণ পরিমার্জন করা, আরও সঠিক ইংরেজি অর্থ প্রদান করা, একটি ভাল শিরোনাম প্রস্তাব করা এবং উদ্দেশ্য ও উৎস উল্লেখ করার প্রয়োজনীয়তার উপর জোর দেওয়া অন্তর্ভুক্ত। এই পরিবর্তনগুলি সামগ্রীর নির্ভুলতা, স্পষ্টতা এবং উপযোগিতা বৃদ্ধি করে।"
+    }
+  }
+
+output:
+{
+    "analysis": {
+      "title": " জাহান্নাম থেকে মুক্তি",
+      "purpose": "Not specified",
+      "arabic_text": " اللَّهُمَّ أَجِرْنِى مِ",
+      "english_meaning": "O Allah! Save me from the fire of Hell.",
+      "transliteration": "আল্লাহুম্মা আজিরনি মিনান নার।",
+      "native_meaning": "হে আল্লাহ! আমাকে",
+      "source_reference": "N/A"
+    },
+    "corrections": [
+      {
+        "field": "title",
+        "issue_english": "Descriptive, not standard for a du'a.",
+        "issue_bangla": "বর্ণনমূলক, একটি দু’য়ার জন্য আদর্শ নয়।",
+        "suggestion_english": "Du'a for Protection from Hellfire",
+        "suggestion_bangla": "জাহান্নাম থেকে সুরক্ষার জন্য দু’আ"
+      },
+      {
+        "field": "purpose",
+        "issue_english": "Missing. Crucial for understanding context.",
+        "issue_bangla": "অনুпущен। প্রেক্ষাপট বোঝার জন্য গুরুত্বপূর্ণ।",
+        "suggestion_english": "A general supplication (du'a) recited for seeking Allah's protection from the torment of Hellfire. It can be recited at any time, particularly during times of distress or reflection.",
+        "suggestion_bangla": "একটি সাধারণ দু’আ (supplication) যা জাহান্নামের শাস্তির হাত থেকে আল্লাহর আশ্রয় চাওয়ার জন্য পাঠ করা হয়। এটি যেকোনো সময়, বিশেষ করে কষ্টের বা চিন্তার সময়ে পাঠ করা যেতে পারে।"
+      },
+      {
+        "field": "arabic_text",
+        "issue_english": "Incomplete. Cuts off mid-word.",
+        "issue_bangla": "অসম্পূর্ণ। শব্দের মাঝে কেটে গেছে।",
+        "suggestion_english": "اللهم أجرني من النار (Allahumma ajirni minan-nar)",
+        "suggestion_bangla": "اللهم أجرني من النار (আল্লাহুম্মা আজিরনি মিনান-নার)"
+      },
+      {
+        "field": "english_meaning",
+        "issue_english": "Inaccurate due to incomplete Arabic text.",
+        "issue_bangla": "অসম্পূর্ণ আরবি লেখার কারণে ভুল।",
+        "suggestion_english": "O Allah! Save me from the fire of Hell.",
+        "suggestion_bangla": "হে আল্লাহ! আমাকে জাহান্নামের আগুন থেকে রক্ষা করুন।"
+      },
+      {
+        "field": "transliteration",
+        "issue_english": "Phonetically close, but can be improved.",
+        "issue_bangla": "উচ্চারণগতভাবে কাছাকাছি, তবে উন্নত করা যেতে পারে।",
+        "suggestion_english": "Allahumma ajirni minan-nar",
+        "suggestion_bangla": "আল্লাহুম্মা আজিরনি মিনান-নার"
+      },
+      {
+        "field": "native_meaning",
+        "issue_english": "Incomplete and grammatically incorrect in Bengali.",
+        "issue_bangla": "অসম্পূর্ণ এবং বাংলা ব্যাকরণে ভুল।",
+        "suggestion_english": "He Allah! Save me from the fire of Hell. (The complete translation is needed)",
+        "suggestion_bangla": "হে আল্লাহ! আমাকে জাহান্নামের আগুন থেকে রক্ষা করুন। (পুরো অনুবাদ প্রয়োজন)"
+      },
+      {
+        "field": "source_reference",
+        "issue_english": "Missing. Important for credibility.",
+        "issue_bangla": "অনুпущен। বিশ্বাসযোগ্যতার জন্য গুরুত্বপূর্ণ।",
+        "suggestion_english": "This du'a is a widely known and accepted supplication in Islam. It’s found in various collections of du'as and is attributed to the Prophet Muhammad (peace be upon him) in various narrations. (Provide a specific reference, e.g., Sahih Muslim, Hadith #... or a specific book of Du'as.)",
+        "suggestion_bangla": "এই দু’আটি ইসলামে বহুলভাবে পরিচিত এবং স্বীকৃত একটি দু’আ। এটি বিভিন্ন দু’য়ার সংকলনে পাওয়া যায় এবং বিভিন্ন বর্ণনায় নবী মুহাম্মদ (সাঃ)-এর কাছে প্রত্যায়িত। (একটি নির্দিষ্ট রেফারেন্স দিন, যেমন, সহীহ মুসলিম, হাদিস #... অথবা একটি নির্দিষ্ট বইয়ের নাম)"
+      }
+    ],
+    "summary": {
+      "english": "The provided content contains several inaccuracies, primarily due to an incomplete Arabic text. Corrections include completing the Arabic and Bengali text, refining the transliteration, providing a more accurate English meaning, suggesting a better title, and emphasizing the need to specify a purpose and source reference. These changes improve the content’s accuracy, clarity, and usefulness.",
+      "bangla": "প্রদত্ত অংশে বেশ কিছু ভুল রয়েছে, যার প্রধান কারণ হল একটি অসম্পূর্ণ আরবি পাঠ। সংশোধনগুলির মধ্যে আরবি এবং বাংলা পাঠ সম্পূর্ণ করা, প্রতিবর্ণীকরণ পরিমার্জন করা, আরও সঠিক ইংরেজি অর্থ প্রদান করা, একটি ভাল শিরোনাম প্রস্তাব করা এবং উদ্দেশ্য ও উৎস উল্লেখ করার প্রয়োজনীয়তার উপর জোর দেওয়া অন্তর্ভুক্ত। এই পরিবর্তনগুলি সামগ্রীর নির্ভুলতা, স্পষ্টতা এবং উপযোগিতা বৃদ্ধি করে।"
+    }
+  }
