@@ -1,7 +1,7 @@
 {
-  "name": "mydua-backend",
+  "name": "tadabbur-backend",
   "version": "1.0.0",
-  "description": "MyDua backend API server",
+  "description": "Tadabbur backend API server",
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
@@ -36,7 +36,7 @@
     "bull": "^4.12.2",
     "redis": "^4.6.10"
   },
-  "keywords": ["islamic", "api", "express", "postgresql"],
-  "author": "MyDua Team",
+  "keywords": ["islamic", "api", "express", "postgresql", "tadabbur"],
+  "author": "Tadabbur Team",
   "license": "MIT"
 }

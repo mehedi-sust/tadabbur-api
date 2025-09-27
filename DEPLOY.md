@@ -1,4 +1,4 @@
-# MyDua Backend - Vercel Deployment Guide
+# Tadabbur Backend - Vercel Deployment Guide
 
 ## Prerequisites
 - Node.js version 16.x+ on (Vercel)
@@ -19,7 +19,7 @@ HF_TOKEN=your-huggingface-token
 HF_API_URL=https://api-inference.huggingface.co/models/google/gemma-3-27b-it
 
 # Frontend URL (where your Next.js is deployed)
-FRONTEND_URL=https://mydua-frontend.vercel.app
+FRONTEND_URL=https://tadabbur-frontend.vercel.app
 ```
 
 ## Deployment Steps
@@ -31,11 +31,11 @@ FRONTEND_URL=https://mydua-frontend.vercel.app
 ## Key Configuration Points
 - No Redis; Queue happens through inline processing
 - Connection timeouts and pool size are optimized for Vercel
-- Admin user is auto-created on initial start with email `admin@mydua.com` and password `Admin123!@#`
+- Admin user is auto-created on initial start with email `admin@tadabbur.com` and password `Admin123!@#`
 
 ## Notes About Vercel Deployment
 - Apple the database size caps and request timeout limits in Vercel Free tier
 - Serverless functions scale automatically 
 - Connection to database is guaranteed with PG adapter
 
-For help: https://github.com/[project]/mydua-backend#architecture
+For help: https://github.com/[project]/tadabbur-backend#architecture
