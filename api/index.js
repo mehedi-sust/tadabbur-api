@@ -53,14 +53,19 @@ let dbInitialized = false;
 const initializeDatabase = async () => {
   if (!dbInitialized) {
     try {
+      console.log('🔄 Initializing database...');
       const dbInit = new DatabaseInitializer();
       await dbInit.initialize();
       dbInitialized = true;
       console.log('✅ Database initialized successfully');
     } catch (error) {
       console.error('❌ Database initialization failed:', error);
-      // Don't throw error in production, just log it
-      if (process.env.NODE_ENV !== 'production') {
+      console.error('Error stack:', error.stack);
+      // In production, don't crash the function, just log the error
+      if (process.env.NODE_ENV === 'production') {
+        console.log('⚠️ Continuing without database initialization in production');
+        dbInitialized = true; // Mark as initialized to prevent retries
+      } else {
         throw error;
       }
     }
@@ -74,10 +79,19 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Database initialization error:', error);
-    res.status(500).json({ 
-      error: 'Database initialization failed',
-      message: process.env.NODE_ENV === 'production' ? 'Service temporarily unavailable' : error.message
-    });
+    console.error('Error stack:', error.stack);
+    
+    // In production, continue with limited functionality
+    if (process.env.NODE_ENV === 'production') {
+      console.log('⚠️ Continuing with limited functionality in production');
+      next();
+    } else {
+      res.status(500).json({ 
+        error: 'Database initialization failed',
+        message: error.message,
+        stack: error.stack
+      });
+    }
   }
 });
 
@@ -112,11 +126,20 @@ app.use('*', (req, res) => {
 // Error handler
 app.use((error, req, res, next) => {
   console.error('API Error:', error);
+  console.error('Error stack:', error.stack);
   
-  res.status(error.status || 500).json({
-    error: error.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-  });
+  // In production, provide generic error messages
+  if (process.env.NODE_ENV === 'production') {
+    res.status(error.status || 500).json({
+      error: 'Internal Server Error',
+      message: 'Something went wrong. Please try again later.'
+    });
+  } else {
+    res.status(error.status || 500).json({
+      error: error.message || 'Internal Server Error',
+      stack: error.stack
+    });
+  }
 });
 
 // Export for Vercel

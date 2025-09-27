@@ -22,11 +22,19 @@ class DatabaseInitializer {
         console.log('✅ Database schema is up to date');
         
         // Run migrations to ensure new tables exist
-        await this.runMigrations();
+        try {
+          await this.runMigrations();
+        } catch (migrationError) {
+          console.warn('⚠️ Migration failed, continuing:', migrationError.message);
+        }
       }
       
       // Always run seeding (with duplicate checks)
-      await this.seedDefaultData();
+      try {
+        await this.seedDefaultData();
+      } catch (seedError) {
+        console.warn('⚠️ Seeding failed, continuing:', seedError.message);
+      }
       
       return true;
     } catch (error) {
