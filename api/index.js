@@ -2,8 +2,16 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const { LRUCache } = require('lru-cache');
 require('dotenv').config();
+
+// Initialize cache for static data
+const cache = new LRUCache({
+  max: 100, // Maximum number of items
+  ttl: 1000 * 60 * 5, // 5 minutes TTL
+});
 
 const authRoutes = require('../src/routes/auth');
 const duaRoutes = require('../src/routes/duas');
@@ -16,42 +24,113 @@ const reportRoutes = require('../src/routes/reports');
 // Database initialization
 const DatabaseInitializer = require('../src/database/initialize');
 
+// Performance monitoring
+const { PerformanceMonitor, performanceMiddleware } = require('../src/utils/performance');
+const performanceMonitor = new PerformanceMonitor();
+
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Compression middleware (should be first)
+app.use(compression());
 
-// Rate limiting (reduced for serverless)
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for API
+  crossOriginEmbedderPolicy: false
+}));
+
+// Rate limiting (optimized for serverless)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // Reduced limit for serverless
-  message: 'Too many requests from this IP, please try again later.'
+  max: 100, // Increased limit with more memory
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false
 });
 app.use(limiter);
 
 // CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL === '*' ? true : (process.env.FRONTEND_URL || 'http://localhost:3000'),
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing middleware (optimized)
+app.use(express.json({ 
+  limit: '5mb', // Reduced limit for better performance
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: '5mb' // Reduced limit
+}));
+
+// Cache middleware for static data
+const cacheMiddleware = (duration = 300) => {
+  return (req, res, next) => {
+    const key = req.originalUrl;
+    const cached = cache.get(key);
+    
+    if (cached) {
+      res.set('X-Cache', 'HIT');
+      return res.json(cached);
+    }
+    
+    res.set('X-Cache', 'MISS');
+    res.jsonResponse = res.json;
+    res.json = (data) => {
+      cache.set(key, data, { ttl: duration * 1000 });
+      res.jsonResponse(data);
+    };
+    next();
+  };
+};
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    memory: process.memoryUsage(),
+    uptime: process.uptime()
   });
 });
 
-// Initialize database on first request
+// Performance stats endpoint (admin only)
+app.get('/api/performance', (req, res) => {
+  if (process.env.NODE_ENV !== 'production') {
+    res.json({
+      stats: performanceMonitor.getAllStats(),
+      memory: process.memoryUsage(),
+      uptime: process.uptime(),
+      cache: {
+        size: cache.size,
+        max: cache.max,
+        ttl: cache.ttl
+      }
+    });
+  } else {
+    res.status(404).json({ error: 'Not found' });
+  }
+});
+
+// Initialize database on first request (optimized)
 let dbInitialized = false;
+let dbInitPromise = null;
+
 const initializeDatabase = async () => {
-  if (!dbInitialized) {
+  if (dbInitialized) return;
+  
+  if (dbInitPromise) {
+    return dbInitPromise;
+  }
+  
+  dbInitPromise = (async () => {
     try {
       console.log('🔄 Initializing database...');
       const dbInit = new DatabaseInitializer();
@@ -60,7 +139,6 @@ const initializeDatabase = async () => {
       console.log('✅ Database initialized successfully');
     } catch (error) {
       console.error('❌ Database initialization failed:', error);
-      console.error('Error stack:', error.stack);
       // In production, don't crash the function, just log the error
       if (process.env.NODE_ENV === 'production') {
         console.log('⚠️ Continuing without database initialization in production');
@@ -69,8 +147,13 @@ const initializeDatabase = async () => {
         throw error;
       }
     }
-  }
+  })();
+  
+  return dbInitPromise;
 };
+
+// Performance monitoring middleware
+app.use(performanceMiddleware(performanceMonitor));
 
 // Middleware to ensure database is initialized
 app.use(async (req, res, next) => {
@@ -95,7 +178,7 @@ app.use(async (req, res, next) => {
   }
 });
 
-// API Routes
+// API Routes with caching for static data
 app.use('/api/auth', authRoutes);
 app.use('/api/duas', duaRoutes);
 app.use('/api/blogs', blogRoutes);
@@ -103,6 +186,10 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/reports', reportRoutes);
+
+// Cache static endpoints
+app.get('/api/categories', cacheMiddleware(600)); // Cache for 10 minutes
+app.get('/api/duas/public', cacheMiddleware(300)); // Cache for 5 minutes
 
 // Root endpoint
 app.get('/', (req, res) => {

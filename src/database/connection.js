@@ -11,17 +11,24 @@ const getDatabaseConfig = () => {
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
+    acquireTimeoutMillis: 10000,
+    allowExitOnIdle: true,
   };
 
-  // Production configuration for Vercel
+  // Production configuration for Vercel (optimized)
   if (process.env.NODE_ENV === 'production') {
     config.ssl = { rejectUnauthorized: false };
-    config.max = 10; // Lower connection pool for Vercel
+    config.max = 15; // Increased with more memory
+    config.idleTimeoutMillis = 60000; // 1 minute
+    config.connectionTimeoutMillis = 5000; // 5 seconds
+    config.acquireTimeoutMillis = 15000; // 15 seconds
   }
 
   // Development configuration
   if (process.env.NODE_ENV === 'development') {
     config.max = 5; // Small pool for development
+    config.idleTimeoutMillis = 30000;
+    config.connectionTimeoutMillis = 2000;
   }
 
   return config;
