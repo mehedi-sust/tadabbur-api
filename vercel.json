@@ -23,11 +23,5 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "installCommand": "npm install --production --ignore-scripts",
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 60,
-      "memory": 2048
-    }
-  }
+  "installCommand": "npm install --production --ignore-scripts"
 }
