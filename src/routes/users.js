@@ -97,8 +97,8 @@ router.get('/:id', authenticateToken, requireManager, async (req, res) => {
   }
 });
 
-// Update user role (admin only)
-router.put('/:id/role', authenticateToken, requireAdmin, [
+// Update user role with proper permissions
+router.put('/:id/role', authenticateToken, requireManager, [
   body('role').isIn(['admin', 'manager', 'scholar', 'user']).withMessage('Invalid role')
 ], async (req, res) => {
   try {
@@ -109,10 +109,59 @@ router.put('/:id/role', authenticateToken, requireAdmin, [
 
     const { role } = req.body;
     const userId = req.params.id;
+    const currentUser = req.user;
 
-    // Prevent admin from changing their own role
-    if (userId === req.user.id) {
+    // Prevent users from changing their own role
+    if (userId === currentUser.id) {
       return res.status(400).json({ error: 'Cannot change your own role' });
+    }
+
+    // Check permissions based on current user role
+    const canPromote = (targetRole) => {
+      switch (currentUser.role) {
+        case 'admin':
+          return ['manager', 'scholar', 'user'].includes(targetRole);
+        case 'manager':
+          return ['scholar', 'user'].includes(targetRole);
+        default:
+          return false;
+      }
+    };
+
+    if (!canPromote(role)) {
+      return res.status(403).json({ 
+        error: 'Insufficient permissions to promote to this role',
+        message: `You can only promote users to: ${currentUser.role === 'admin' ? 'manager, scholar, user' : 'scholar, user'}`
+      });
+    }
+
+    // Get current user role to check if demotion is allowed
+    const currentUserResult = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+    if (currentUserResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentTargetRole = currentUserResult.rows[0].role;
+
+    // Check if demotion is allowed
+    const canDemote = (fromRole, toRole) => {
+      if (currentUser.role === 'admin') return true;
+      if (currentUser.role === 'manager') {
+        // Manager can only demote scholars to users, not admins
+        return fromRole === 'scholar' && toRole === 'user';
+      }
+      return false;
+    };
+
+    if (currentTargetRole !== role) {
+      const isDemotion = ['admin', 'manager', 'scholar'].indexOf(currentTargetRole) > ['admin', 'manager', 'scholar'].indexOf(role);
+      
+      if (isDemotion && !canDemote(currentTargetRole, role)) {
+        return res.status(403).json({ 
+          error: 'Insufficient permissions to demote this user',
+          message: `You cannot demote users from ${currentTargetRole} to ${role}`
+        });
+      }
     }
 
     const result = await pool.query(
@@ -123,6 +172,12 @@ router.put('/:id/role', authenticateToken, requireAdmin, [
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    // Create notification for the user whose role was changed
+    await pool.query(`
+      INSERT INTO notifications (user_id, type, title, message)
+      VALUES ($1, 'role_change', 'Role Updated', $2)
+    `, [userId, `Your role has been updated to ${role} by ${currentUser.name}`]);
 
     res.json({
       message: 'User role updated successfully',

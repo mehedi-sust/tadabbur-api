@@ -10,6 +10,9 @@ const blogRoutes = require('./routes/blogs');
 const questionRoutes = require('./routes/questions');
 const userRoutes = require('./routes/users');
 const aiRoutes = require('./routes/ai');
+const reportRoutes = require('./routes/reports');
+const approvalRoutes = require('./routes/approval');
+const notificationRoutes = require('./routes/notifications');
 
 // Database initialization
 const DatabaseInitializer = require('./database/initialize');
@@ -55,6 +58,9 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/approval', approvalRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

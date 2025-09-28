@@ -249,6 +249,14 @@ class DatabaseInitializer {
         CREATE INDEX IF NOT EXISTS idx_dua_likes_dua_id ON dua_likes(dua_id);
         CREATE INDEX IF NOT EXISTS idx_dua_likes_user_id ON dua_likes(user_id);
       `);
+
+      // Run approval system migration
+      try {
+        const migrateApprovalSystem = require('../scripts/migrate-approval-system');
+        await migrateApprovalSystem();
+      } catch (migrationError) {
+        console.warn('⚠️  Approval system migration failed, continuing:', migrationError.message);
+      }
       
       console.log('✅ Database migrations completed');
     } catch (error) {

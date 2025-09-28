@@ -20,6 +20,8 @@ const questionRoutes = require('../src/routes/questions');
 const userRoutes = require('../src/routes/users');
 const aiRoutes = require('../src/routes/ai');
 const reportRoutes = require('../src/routes/reports');
+const approvalRoutes = require('../src/routes/approval');
+const notificationRoutes = require('../src/routes/notifications');
 
 // Database initialization
 const DatabaseInitializer = require('../src/database/initialize');
@@ -186,6 +188,8 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/approval', approvalRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Cache static endpoints
 app.get('/api/categories', cacheMiddleware(600)); // Cache for 10 minutes

@@ -10,6 +10,7 @@
     "test:watch": "jest --watch",
     "test:ai": "jest src/tests/ai.test.js",
     "setup-db": "node src/scripts/setup-database.js",
+    "migrate-approval": "node src/scripts/migrate-approval-system.js",
     "verify-admin": "node scripts/verify-admin.js",
     "postinstall": "echo 'Dependencies installed. Ready for deployment!'"
   },

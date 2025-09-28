@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
       SELECT b.*, u.name as author_name
       FROM blogs b
       LEFT JOIN users u ON b.author_id = u.id
-      WHERE b.is_published = true
+      WHERE b.is_published = true AND b.approval_status = 'approved'
     `;
     
     const queryParams = [];
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
     let countQuery = `
       SELECT COUNT(*) as total
       FROM blogs b
-      WHERE b.is_published = true
+      WHERE b.is_published = true AND b.approval_status = 'approved'
     `;
     
     const countParams = [];
@@ -156,8 +156,8 @@ router.post('/', authenticateToken, [
     const generatedExcerpt = excerpt || content.substring(0, 200) + '...';
 
     const result = await pool.query(`
-      INSERT INTO blogs (author_id, title, content, excerpt, tags)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO blogs (author_id, title, content, excerpt, tags, is_published, approval_status)
+      VALUES ($1, $2, $3, $4, $5, false, 'pending')
       RETURNING *
     `, [req.user.id, title, content, generatedExcerpt, tags]);
 
@@ -230,6 +230,11 @@ router.put('/:id', authenticateToken, [
       updates.push(`is_published = $${paramCount}`);
       values.push(is_published);
       paramCount++;
+      
+      // If publishing, set approval status to pending
+      if (is_published === true) {
+        updates.push(`approval_status = 'pending'`);
+      }
     }
 
     if (updates.length === 0) {

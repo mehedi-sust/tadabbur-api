@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS duas (
     is_verified BOOLEAN DEFAULT false,
     verified_by UUID REFERENCES users(id),
     verified_at TIMESTAMP,
+    approval_status VARCHAR(20) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+    rejection_reason TEXT,
     ai_summary TEXT,
     ai_corrections TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -61,7 +63,12 @@ CREATE TABLE IF NOT EXISTS blogs (
     content TEXT NOT NULL,
     excerpt TEXT,
     tags TEXT[],
-    is_published BOOLEAN DEFAULT true,
+    is_published BOOLEAN DEFAULT false,
+    is_verified BOOLEAN DEFAULT false,
+    verified_by UUID REFERENCES users(id),
+    verified_at TIMESTAMP,
+    approval_status VARCHAR(20) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected')),
+    rejection_reason TEXT,
     ai_summary TEXT,
     view_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -165,6 +172,11 @@ CREATE INDEX IF NOT EXISTS idx_answers_scholar_id ON answers(scholar_id);
 CREATE INDEX IF NOT EXISTS idx_ai_queue_status ON ai_processing_queue(status);
 CREATE INDEX IF NOT EXISTS idx_dua_likes_dua_id ON dua_likes(dua_id);
 CREATE INDEX IF NOT EXISTS idx_dua_likes_user_id ON dua_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_duas_approval_status ON duas(approval_status);
+CREATE INDEX IF NOT EXISTS idx_blogs_approval_status ON blogs(approval_status);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX IF NOT EXISTS idx_content_reports_status ON content_reports(status);
 
 -- Insert default data only if tables are empty
 -- Insert default categories
@@ -196,6 +208,19 @@ CREATE TABLE IF NOT EXISTS content_reports (
     admin_notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Notifications table for approval notifications
+CREATE TABLE IF NOT EXISTS notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('approval', 'rejection', 'role_change', 'system')),
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    content_type VARCHAR(20) CHECK (content_type IN ('dua', 'blog')),
+    content_id UUID,
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert default admin user only if no admin exists

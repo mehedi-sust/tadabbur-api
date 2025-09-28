@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
         FROM dua_likes 
         GROUP BY dua_id
       ) cl ON d.id = cl.dua_id
-      WHERE d.is_public = true
+      WHERE d.is_public = true AND d.approval_status = 'approved'
     `;
     
     const queryParams = [];
@@ -97,7 +97,7 @@ router.get('/', async (req, res) => {
       FROM duas d
       LEFT JOIN dua_category_relations dcr ON d.id = dcr.dua_id
       LEFT JOIN dua_categories dc ON dcr.category_id = dc.id
-      WHERE d.is_public = true
+      WHERE d.is_public = true AND d.approval_status = 'approved'
     `;
     
     const countParams = [];
@@ -429,6 +429,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
       updates.push(`is_public = $${paramCount}`);
       values.push(is_public);
       paramCount++;
+      
+      // If making public, set approval status to pending
+      if (is_public === true) {
+        updates.push(`approval_status = 'pending'`);
+      }
     }
 
     updates.push(`updated_at = CURRENT_TIMESTAMP`);
